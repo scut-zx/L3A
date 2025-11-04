@@ -64,7 +64,7 @@ Training results will be saved in the `logs/` directory.
 
 ## Acknowledge
 
-We thank the authors of [KRT](https://github.com/Songlin-Dong/KRT-MLCIL/tree/main) for their contributions to multi-label class incremental learning, which inspired and supported the development of our L3A framework.
+We thank the authors of [KRT](https://github.com/Songlin-Dong/KRT-MLCIL/tree/main) for their contributions to multi-label class incremental learning, and the authors of [ACIL](https://github.com/ZHUANGHP/Analytic-continual-learning) for their contributions to analytic learning, which inspired and supported the development of our L3A framework.
 
 ---
 
