@@ -1,0 +1,44 @@
+# arch
+arch: l3a
+excel_path: l3a_voc.xlsx
+
+# datasets
+root_dir: # your voc dataset path 
+dataset_name: voc
+image_size: 224
+
+# training
+base_lr: 0.00004
+lr: 0.00004
+weight_decay: 0.00001
+epochs: 1
+batch_size: 64
+num_workers: 16
+
+# model
+model_name: tresnet_m
+pretrained_path: pretrained_models/tresnet_m_224_21k.pth
+
+# incremental
+total_classes: 20
+base_classes: 4
+task_size: 4
+
+# L3A specific
+recurbase: False
+Hidden: 8192
+repeat: 1
+rg: 1000
+rectifier_fac: True
+
+pseudo_label: True
+thre: 0.7
+
+resume:
+resume_low_range: 10
+
+# outputs
+logger_dir: logger
+tensorboard_dir: tensorboard
+save_model: False
+model_save_path: model_save_path
