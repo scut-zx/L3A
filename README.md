@@ -74,7 +74,7 @@ If you find our work useful for your research, please cite our paper:
 ```bibtex
 @InProceedings{L3A_Zhang_ICML2025,
   title     = 	 {{L}3{A}: Label-Augmented Analytic Adaptation for Multi-Label Class Incremental Learning},
-  author    =   {Zhang, Xiang and He, Run and Jiao, Chen and Fang, Di and Li, Ming and Zeng, Ziqian and Chen, Cen and Zhuang, Huiping},
+  author    = 	 {Zhang, Xiang and He, Run and Jiao, Chen and Fang, Di and Li, Ming and Zeng, Ziqian and Chen, Cen and Zhuang, Huiping},
   booktitle = 	 {Proceedings of the 42nd International Conference on Machine Learning},
   pages     = 	 {74938--74949},
   year      = 	 {2025},
@@ -82,6 +82,6 @@ If you find our work useful for your research, please cite our paper:
   volume    = 	 {267},
   series    = 	 {Proceedings of Machine Learning Research},
   month     = 	 {13--19 Jul},
-  publisher =   {PMLR}
+  publisher = 	 {PMLR}
 }
 
