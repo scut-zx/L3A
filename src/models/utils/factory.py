@@ -1,5 +1,6 @@
 import logging
 from collections import OrderedDict
+import timm
 
 logger = logging.getLogger(__name__)
 
@@ -11,7 +12,7 @@ import torch.utils.model_zoo as model_zoo
 
 
 __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
-           'resnet152']
+           'resnet152', 'ViT_L3A']
 
 
 model_urls = {
@@ -201,6 +202,46 @@ class ResNet(nn.Module):
         # return x_fc
         return outputs
 
+class ViT_L3A(nn.Module):
+    def __init__(self, model_params):
+        super(ViT_L3A, self).__init__()
+        num_classes = model_params['num_classes']
+        args = model_params['args']
+        
+        if hasattr(args, 'pretrained_path') and args.pretrained_path:
+            print(f"Loading local ViT weights from: {args.pretrained_path}")
+            self.backbone = timm.create_model(
+                'vit_base_patch16_224_in21k', 
+                pretrained=False, 
+                num_classes=0,
+                checkpoint_path=args.pretrained_path
+            )
+        else:
+            self.backbone = timm.create_model(
+                'vit_base_patch16_224_in21k', 
+                pretrained=True,
+                num_classes=0
+            )
+        
+        class Head(nn.Module):
+            def __init__(self, in_features, out_features):
+                super().__init__()
+                self.fc = nn.Linear(in_features, out_features)
+                
+        self.head = Head(self.backbone.num_features, num_classes)
+        
+        self.backbone_type = 'vit'
+
+    def forward(self, x):
+        features = self.backbone(x)
+        logits = self.head.fc(features)
+        
+        outputs = {
+            "logits": logits,
+            "embeddings": features,
+            "attentions": []
+        }
+        return outputs
 
 def resnet18(pretrained=False, **kwargs):
     """Constructs a ResNet-18 model.
@@ -282,6 +323,8 @@ def my_create_model(args, num_classes):
         model = TResnetXL(model_params)
     elif model_name=='resnet101':
         model = resnet101(model_params)
+    elif model_name=='vit_b_16':
+        model = ViT_L3A(model_params)
     else:
         print("model: {} not found !!".format(model_name))
         exit(-1)

@@ -151,6 +151,10 @@ class MultiLabelIncremental:
             
             self.logger.info('Create Model successfully, Loaded from model_path:{}, Loaded params:{}\n'
                              .format(self.pretrained_path, len(filtered_dict)))
+        else:
+            # vit
+            model = my_create_model(self.args, self.base_classes)
+            model = model.cuda()
 
         return model
 
@@ -171,12 +175,18 @@ class MultiLabelIncremental:
             model = wrapped_model.module
         else:
             model = wrapped_model
-        if hasattr(model, 'layer4'):
-            pass
+        
+        if getattr(model, 'backbone_type', '') == 'vit':
+            new_model = torch.nn.Sequential(model.backbone, model.head.fc[:2])
         else:
-            model.layer4 = nn.Sequential()
-        new_model = torch.nn.Sequential(model.space_to_depth, model.conv1, model.layer1, model.layer2,
-                                    model.layer3, model.layer4, model.global_pool, model.head.fc[:2])
+            if hasattr(model, 'layer4'):
+                pass
+            else:
+                model.layer4 = nn.Sequential()
+            space_to_depth = getattr(model, 'space_to_depth', nn.Identity())
+            new_model = torch.nn.Sequential(space_to_depth, model.conv1, model.layer1, model.layer2,
+                                        model.layer3, model.layer4, model.global_pool, model.head.fc[:2])
+        
         model.eval()
 
         # calculate A and C matrices
@@ -235,12 +245,18 @@ class MultiLabelIncremental:
             model = wrapped_model.module
         else:
             model = wrapped_model
-        if hasattr(model, 'layer4'):
-            pass
+        
+        if getattr(model, 'backbone_type', '') == 'vit':
+            new_model = torch.nn.Sequential(model.backbone, model.head.fc[:2])
         else:
-            model.layer4 = nn.Sequential()
-        new_model = torch.nn.Sequential(model.space_to_depth, model.conv1, model.layer1, model.layer2,
-                                    model.layer3, model.layer4, model.global_pool, model.head.fc[:2])
+            if hasattr(model, 'layer4'):
+                pass
+            else:
+                model.layer4 = nn.Sequential()
+            space_to_depth = getattr(model, 'space_to_depth', nn.Identity())
+            new_model = torch.nn.Sequential(space_to_depth, model.conv1, model.layer1, model.layer2,
+                                        model.layer3, model.layer4, model.global_pool, model.head.fc[:2])
+        
         model.eval()
         
         W = (model.head.fc[-1].weight.t()).double()
@@ -309,12 +325,18 @@ class MultiLabelIncremental:
             model = wrapped_model.module
         else:
             model = wrapped_model
-        if hasattr(model, 'layer4'):
-            pass
+        
+        if getattr(model, 'backbone_type', '') == 'vit':
+            new_model = torch.nn.Sequential(model.backbone, model.head.fc[:2])
         else:
-            model.layer4 = nn.Sequential()
-        new_model = torch.nn.Sequential(model.space_to_depth, model.conv1, model.layer1, model.layer2,
-                                    model.layer3, model.layer4, model.global_pool, model.head.fc[:2])
+            if hasattr(model, 'layer4'):
+                pass
+            else:
+                model.layer4 = nn.Sequential()
+            space_to_depth = getattr(model, 'space_to_depth', nn.Identity())
+            new_model = torch.nn.Sequential(space_to_depth, model.conv1, model.layer1, model.layer2,
+                                        model.layer3, model.layer4, model.global_pool, model.head.fc[:2])
+        
         model.eval()
 
         self.A = torch.zeros(model.head.fc[-1].weight.size(1), model.head.fc[-1].weight.size(1)).cuda()
@@ -350,12 +372,17 @@ class MultiLabelIncremental:
             model = wrapped_model.module
         else:
             model = wrapped_model
-        if hasattr(model, 'layer4'):
-            pass
+        
+        if getattr(model, 'backbone_type', '') == 'vit':
+            new_model = torch.nn.Sequential(model.backbone, model.head.fc[:2])
         else:
-            model.layer4 = nn.Sequential()
-        new_model = torch.nn.Sequential(model.space_to_depth, model.conv1, model.layer1, model.layer2,
-                                    model.layer3, model.layer4, model.global_pool, model.head.fc[:2])  
+            if hasattr(model, 'layer4'):
+                pass
+            else:
+                model.layer4 = nn.Sequential()
+            space_to_depth = getattr(model, 'space_to_depth', nn.Identity())
+            new_model = torch.nn.Sequential(space_to_depth, model.conv1, model.layer1, model.layer2,
+                                        model.layer3, model.layer4, model.global_pool, model.head.fc[:2])
         model.eval()
         
         W = (model.head.fc[-1].weight.t()).double()

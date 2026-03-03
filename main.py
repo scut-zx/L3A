@@ -17,6 +17,7 @@ parser.add_argument('--rg', type=float, default=1000)
 parser.add_argument('--base_classes', type=int, default=40)
 parser.add_argument('--task_size', type=int, default=10)
 parser.add_argument('--thre', type=float, default=0.7)
+parser.add_argument('--epochs', type=int, default=1)
 
 def set_seed(seed):
     random.seed(seed)
@@ -41,22 +42,23 @@ def main():
     if args.options:
         load_options(args, args.options)
 
-    args.rank = 0
-    args.world_size = 0
-    # Distributed
-    # if 'WORLD_SIZE' in os.environ:
-    #     # args.rank = int(os.environ["RANK"])
-    #     args.rank = 0
-    #     args.world_size = int(os.environ['WORLD_SIZE'])
-    # print('Training in distributed mode with multiple processes, 1 GPU per process. Process %d, total %d.'
-    #       % (args.rank, args.world_size))
+    # DDP
+    if 'LOCAL_RANK' in os.environ:
+        args.local_rank = int(os.environ['LOCAL_RANK'])
+    if 'WORLD_SIZE' in os.environ:
+        args.world_size = int(os.environ['WORLD_SIZE'])
+    if 'RANK' in os.environ:
+        args.rank = int(os.environ['RANK'])
+    else:
+        args.rank = 0
+        args.world_size = 1
+        args.local_rank = 0
 
     torch.cuda.set_device(args.local_rank)
-    os.environ['MASTER_ADDR'] = 'localhost'
-
-    os.environ['MASTER_PORT'] = '4433'
-
-    dist.init_process_group(backend='nccl', init_method='env://', rank = 0, world_size = 1)
+    
+    if not dist.is_initialized():
+        print(f'[Process {args.rank}] Initializing distributed process group, total {args.world_size} processes.')
+        dist.init_process_group(backend='nccl', init_method='env://')
 
     args.logger_dir = 'logs/' + args.output_name 
     args.tensorboard_dir = 'tensorboard/' + args.output_name 
@@ -69,12 +71,16 @@ def main():
         multi_incremental.train()
     else:
         print('error')
+    
     del multi_incremental
+
+    if dist.is_initialized():
+        dist.destroy_process_group()
 
     end_time = time.time()
     elapsed_time = end_time - start_time
-    print("Running time (in seconds):", elapsed_time)
-
+    if args.rank == 0:
+        print(f"Running time: {elapsed_time:.2f} 秒")
 
 if __name__ == '__main__':
     main()
